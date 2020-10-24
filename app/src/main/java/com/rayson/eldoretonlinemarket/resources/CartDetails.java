@@ -1,18 +1,27 @@
 package com.rayson.eldoretonlinemarket.resources;
 
 public class CartDetails {
-    private String name, Image, amount, price, menuId,username;
+    private String name, Image, amount, price, menuId,username,owner_name;
 
     public CartDetails() {
     }
 
-    public CartDetails(String name, String image, String amount, String price, String menuId,String username) {
+    public CartDetails(String name, String image, String amount, String price, String menuId, String username, String owner_name) {
         this.name = name;
-        this.username=username;
         Image = image;
         this.amount = amount;
         this.price = price;
         this.menuId = menuId;
+        this.username = username;
+        this.owner_name = owner_name;
+    }
+
+    public String getOwner_name() {
+        return owner_name;
+    }
+
+    public void setOwner_name(String owner_name) {
+        this.owner_name = owner_name;
     }
 
     public String getName() {

@@ -4,25 +4,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Products1 implements Parcelable {
-    private String name, Image, description, price, menuId;
+    private String name, Image, description, price, menuId,username;
 
     public Products1() {
     }
 
-    public Products1(String name, String image) {
+    public Products1(String name, String image, String description, String price, String menuId, String username) {
         this.name = name;
         Image = image;
         this.description = description;
         this.price = price;
         this.menuId = menuId;
-    }
-
-    public Products1(String name, String image, String description, String price, String menuId) {
-        this.name = name;
-        Image = image;
-        this.description = description;
-        this.price = price;
-        this.menuId = menuId;
+        this.username = username;
     }
 
     protected Products1(Parcel in) {
@@ -31,6 +24,7 @@ public class Products1 implements Parcelable {
         description = in.readString();
         price = in.readString();
         menuId = in.readString();
+        username=in.readString();
     }
 
     public static final Creator<Products1> CREATOR = new Creator<Products1>() {
@@ -75,6 +69,14 @@ public class Products1 implements Parcelable {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getMenuId() {

@@ -53,7 +53,7 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
     private ImageButton btnAdd,btnRemove;
     private TextView tvPrice,selectedItems,tvName,tvProductDescription;
     //vars
-    private String product_name,product_description,product_price,product_category,product_image;
+    private String product_name,product_description,product_price,product_category,product_image,owner_name;
     private GestureDetector mGestureDetector;
     private Rect mCartPositionRectangle;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -109,6 +109,7 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
             product_price = intent.getStringExtra("product_price");
             product_category = intent.getStringExtra("product_category");
             product_image = intent.getStringExtra("product_image");
+            owner_name =intent.getStringExtra("owner_name");
         }
     }
 
@@ -155,7 +156,7 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
     }
 
     private void addCurrentItemToCart(){
-        CartDetails selectedProduct=new CartDetails(product_name,product_image,selectedItems.getText().toString(),product_price,product_category,mUser.getEmail());
+        CartDetails selectedProduct=new CartDetails(product_name,product_image,selectedItems.getText().toString(),product_price,product_category,mUser.getEmail(),owner_name);
         db.collection(mUser.getEmail()).document("all_cart_products").collection("Cart").document(product_name)
                 .set(selectedProduct)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -178,7 +179,7 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
         FullScreenProductFragment fragment = new FullScreenProductFragment();
 
         Bundle bundle = new Bundle();
-        Products1 selectedProduct=new Products1(product_name,product_image,product_description,product_price,product_category);
+        Products1 selectedProduct=new Products1(product_name,product_image,product_description,product_price,product_category,mUser.getEmail());
         bundle.putParcelable(getString(R.string.intent_product), selectedProduct);
         fragment.setArguments(bundle);
 

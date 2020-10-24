@@ -89,12 +89,7 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
         mFab = findViewById(R.id.fabCart);
         checkout=findViewById(R.id.button2_checkout);
         mFab.setOnClickListener(this);
-        checkout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDialog();
-            }
-        });
+        checkout.setOnClickListener(view -> showDialog());
 
         getProducts();
     }
@@ -103,35 +98,29 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
         //mProducts.addAll(Arrays.asList(Products.FEATURED_PRODUCTS));
         db.collectionGroup("Cart").whereEqualTo("username",mUser.getEmail())
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        mProducts = new ArrayList<>();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (DocumentSnapshot snapshot : queryDocumentSnapshots)
-                                mProducts.add(snapshot.toObject(CartDetails.class));
-                            int position;
-                            int size=mProducts.size();
-                            for (position=0;position<size;position++){
-                                int kkk=Integer.valueOf(mProducts.get(position).getAmount()) * Integer.valueOf(mProducts.get(position).getPrice());
-                                amnt= amnt+ kkk;
-                            }
-                            tvTotal.setVisibility(View.VISIBLE);
-                            tvTotal.setText("Total amount: " + amnt);
-                        } else {
-                            Toast.makeText(ViewCartActivity.this, "No products found in your cart.", Toast.LENGTH_LONG).show();
-                            Intent intentMain= new Intent(ViewCartActivity.this,MainActivity.class);
-                            startActivity(intentMain);
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    mProducts = new ArrayList<>();
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot snapshot : queryDocumentSnapshots)
+                            mProducts.add(snapshot.toObject(CartDetails.class));
+                        int position;
+                        int size=mProducts.size();
+                        for (position=0;position<size;position++){
+                            int kkk=Integer.valueOf(mProducts.get(position).getAmount()) * Integer.valueOf(mProducts.get(position).getPrice());
+                            amnt= amnt+ kkk;
                         }
-                        initRecyclerView();
+                        tvTotal.setVisibility(View.VISIBLE);
+                        tvTotal.setText("Total amount: " + amnt);
+                    } else {
+                        Toast.makeText(ViewCartActivity.this, "No products found in your cart.", Toast.LENGTH_LONG).show();
+                        Intent intentMain= new Intent(ViewCartActivity.this,MainActivity.class);
+                        startActivity(intentMain);
                     }
+                    initRecyclerView();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(ViewCartActivity.this, "Something went terribly wrong." + e, Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "error "+ e);
-                    }
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ViewCartActivity.this, "Something went terribly wrong." + e, Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "error "+ e);
                 });
     }
     private void getCartProducts(final String orderId){
@@ -153,12 +142,9 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
                         }
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(ViewCartActivity.this, "Something went terribly wrong." + e, Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "error "+ e);
-                    }
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ViewCartActivity.this, "Something went terribly wrong." + e, Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "error "+ e);
                 });
     }
     private void addOrder(String orderId){
@@ -170,16 +156,13 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
             String product_amount=mProducts.get(position).getAmount();
             int cash = Integer.parseInt(product_amount) * Integer.parseInt(mProducts.get(position).getPrice());
 
-            Orders orders=new Orders(product_name,product_amount,orderId,mUser.getEmail(),String.valueOf(cash),mProducts.get(position).getImage(),0);
+            Orders orders=new Orders(product_name,product_amount,orderId,mUser.getEmail(),String.valueOf(cash),mProducts.get(position).getImage(),mProducts.get(position).getUsername(),0);
             db.collection("Orders").document("placed orders").collection(orderId).document(product_name)
                     .set(orders)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
+                    .addOnSuccessListener(aVoid -> {
 //                                startActivity(new Intent(getContext(), MainActivityAdmin.class));
-                            removeItemFromCart();
+                        removeItemFromCart();
 
-                        }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -196,24 +179,16 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
             n = position;
             db.collection(mUser.getEmail()).document("all_cart_products").collection("Cart").document(mProducts.get(position).getName())
                     .delete()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
+                    .addOnSuccessListener(aVoid -> {
 //                                startActivity(new Intent(getContext(), MainActivityAdmin.class));
-                            if (n==0){
-                                Toast.makeText(ViewCartActivity.this, "Order has been placed.", Toast.LENGTH_SHORT).show();
-                                Intent intentMain= new Intent(ViewCartActivity.this,MainActivity.class);
-                                startActivity(intentMain);
-                            }
+                        if (n==0){
+                            Toast.makeText(ViewCartActivity.this, "Order has been placed.", Toast.LENGTH_SHORT).show();
+                            Intent intentMain= new Intent(ViewCartActivity.this,MainActivity.class);
+                            startActivity(intentMain);
+                        }
 
-                        }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(ViewCartActivity.this,"Not ordered. Try again later.",Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    .addOnFailureListener(e -> Toast.makeText(ViewCartActivity.this,"Not ordered. Try again later.",Toast.LENGTH_LONG).show());
         }
     }
     public static String encode(String date){
@@ -246,19 +221,16 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
 
             }
         });
-        alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                dialog.dismiss();
-                String location =spLocations.getSelectedItem().toString();
-                if (!location.isEmpty()){
-                    String lat=coordsLat.get(postn);
-                    String longtd=coordsLong.get(postn);
-                    addOrderInOrderId(lat,longtd);
-                }
-
-
+        alertDialog.setPositiveButton("YES", (dialog, i) -> {
+            dialog.dismiss();
+            String location =spLocations.getSelectedItem().toString();
+            if (!location.isEmpty()){
+                String lat=coordsLat.get(postn);
+                String longtd=coordsLong.get(postn);
+                addOrderInOrderId(lat,longtd);
             }
+
+
         });
 
         alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
@@ -282,36 +254,30 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
     }
     private void populateSpinner() {
         db.collectionGroup("allUserLocations").get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        mLocations = new ArrayList<>();
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (DocumentSnapshot snapshot : queryDocumentSnapshots)
-                                mLocations.add(snapshot.toObject(UserDestinationInfo.class));
-                            int size = mLocations.size();
-                            int position;
-                            for (position=0;position<size;position++){
-                                UserDestinationInfo uDetails= mLocations.get(position);
-                                cats.add(uDetails.getDestinationNickName());
-                                coordsLat.add(uDetails.getLatitude());
-                                coordsLong.add(uDetails.getLongitude());
-                            }
-                            ArrayAdapter<String> usersAdapter = new ArrayAdapter<>(
-                                    ViewCartActivity.this, android.R.layout.simple_spinner_item, cats);
-                            spLocations.setAdapter(usersAdapter);
-                        } else {
-                            Toast.makeText(ViewCartActivity.this, "No locations found. Please select the map to add a new location", Toast.LENGTH_LONG).show();
-                           // Intent intentAddLocation = new Intent(ViewCartActivity.this,);
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    mLocations = new ArrayList<>();
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot snapshot : queryDocumentSnapshots)
+                            mLocations.add(snapshot.toObject(UserDestinationInfo.class));
+                        int size = mLocations.size();
+                        int position;
+                        for (position=0;position<size;position++){
+                            UserDestinationInfo uDetails= mLocations.get(position);
+                            cats.add(uDetails.getDestinationNickName());
+                            coordsLat.add(uDetails.getLatitude());
+                            coordsLong.add(uDetails.getLongitude());
                         }
+                        ArrayAdapter<String> usersAdapter = new ArrayAdapter<>(
+                                ViewCartActivity.this, android.R.layout.simple_spinner_item, cats);
+                        spLocations.setAdapter(usersAdapter);
+                    } else {
+                        Toast.makeText(ViewCartActivity.this, "No locations found. Please select the map to add a new location", Toast.LENGTH_LONG).show();
+                       // Intent intentAddLocation = new Intent(ViewCartActivity.this,);
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG," "+ e);
-                        Toast.makeText(ViewCartActivity.this, "Something went terribly wrong." + e, Toast.LENGTH_LONG).show();
-                    }
+                .addOnFailureListener(e -> {
+                    Log.d(TAG," "+ e);
+                    Toast.makeText(ViewCartActivity.this, "Something went terribly wrong." + e, Toast.LENGTH_LONG).show();
                 });
     }
     private void addOrderInOrderId(String latitude,String longitude) {
@@ -337,12 +303,7 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
                         getCartProducts(randomOrder);
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(ViewCartActivity.this,"Not ordered. Try again later.",Toast.LENGTH_LONG).show();
-                    }
-                });
+                .addOnFailureListener(e -> Toast.makeText(ViewCartActivity.this,"Not ordered. Try again later.",Toast.LENGTH_LONG).show());
     }
 
     private void initRecyclerView(){

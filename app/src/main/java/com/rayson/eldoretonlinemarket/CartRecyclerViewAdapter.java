@@ -347,7 +347,7 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             n = position;
             String product_amount=mProducts.get(position).getAmount();
             int cash = Integer.parseInt(product_amount) * Integer.parseInt(mProducts.get(position).getPrice());
-            Orders orders=new Orders(product_name,product_amount,orderId,mUser.getEmail(),String.valueOf(cash),mProducts.get(position).getImage(),0);
+            Orders orders=new Orders(product_name,product_amount,orderId,mUser.getEmail(),String.valueOf(cash),mProducts.get(position).getImage(),mProducts.get(position).getOwner_name(),0);
             removeItemFromCart();
             db.collection("Orders").document("placed orders").collection(orderId).document(product_name)
                     .set(orders)

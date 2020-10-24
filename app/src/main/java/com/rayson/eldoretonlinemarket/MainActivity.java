@@ -63,10 +63,12 @@ public class MainActivity extends AppCompatActivity {
         this.menu = menu;
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        tvEmail.setText(mUser.getEmail());
-        tvUsername.setText(mUser.getDisplayName());
-        //imgUser.setImageURI(mUser.getPhotoUrl());
-        Picasso.with(this).load(mUser.getPhotoUrl()).into(imgUser);
+        if (mUser!=null){
+            tvEmail.setText(mUser.getEmail());
+            tvUsername.setText(mUser.getDisplayName());
+            //imgUser.setImageURI(mUser.getPhotoUrl());
+            Picasso.with(this).load(mUser.getPhotoUrl()).into(imgUser);
+        }
         return true;
     }
     @Override

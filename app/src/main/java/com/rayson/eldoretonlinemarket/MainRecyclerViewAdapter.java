@@ -66,6 +66,7 @@ public class MainRecyclerViewAdapter extends RecyclerView.Adapter<MainRecyclerVi
                 intent.putExtra("product_price", mProducts.get(position).getPrice());
                 intent.putExtra("product_category", mProducts.get(position).getMenuId());
                 intent.putExtra("product_image", mProducts.get(position).getImage());
+                intent.putExtra("owner_name", mProducts.get(position).getUsername());
                 mContext.startActivity(intent);
             }
         });
