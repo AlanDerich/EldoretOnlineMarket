@@ -43,7 +43,6 @@ public class MpesaPaymentFragment extends Fragment implements View.OnClickListen
         View root = inflater.inflate(R.layout.fragment_mpesa_payment, container, false);
         mAmount = root.findViewById(R.id.etAmount);
         mPhone=root.findViewById(R.id.etPhone);
-        mPay=root.findViewById(R.id.btnPay);
         mContext= getActivity();
         mProgressDialog = new ProgressDialog(mContext);
         mApiClient = new ApiClient();

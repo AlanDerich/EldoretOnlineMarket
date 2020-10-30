@@ -58,7 +58,6 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
     //widgets
     private RecyclerView mRecyclerView;
     private FloatingActionButton mFab;
-    private Button checkout;
     //vars
     CartRecyclerViewAdapter mAdapter;
     private ArrayList<CartDetails> mProducts = new ArrayList<>();
@@ -87,9 +86,9 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mFab = findViewById(R.id.fabCart);
-        checkout=findViewById(R.id.button2_checkout);
+//        checkout=findViewById(R.id.button2_checkout);
         mFab.setOnClickListener(this);
-        checkout.setOnClickListener(view -> showDialog());
+//        checkout.setOnClickListener(view -> showDialog());
 
         getProducts();
     }
@@ -292,7 +291,7 @@ public class ViewCartActivity extends AppCompatActivity implements View.OnClickL
         final int max = 1000000;
         final int random = new Random().nextInt((max-min) + 1) + min;
         final String randomOrder=mUser.getEmail() + random;
-        OrderIds orderIds=new OrderIds(randomOrder,mUser.getEmail(),formattedDateAndTime,latitude,longitude,ttttt,getTotalCartAmount(),0);
+        OrderIds orderIds=new OrderIds(randomOrder,mUser.getEmail(),formattedDateAndTime,latitude,longitude,ttttt,mUser.getEmail(),getTotalCartAmount(),0);
         db.collection("AllOrders").document(encode(ttttt)).collection("allOrderIds").document(randomOrder)
                 .set(orderIds)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

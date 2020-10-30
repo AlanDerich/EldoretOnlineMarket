@@ -21,7 +21,7 @@
             android:textColorHint="@color/colorPrimary"
             android:textSize="34sp"
             android:textColor="@color/colorPrimary"
-           />
+            />
 
         <LinearLayout
             android:weightSum="2"

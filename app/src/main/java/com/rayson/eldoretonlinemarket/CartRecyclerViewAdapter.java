@@ -9,8 +9,10 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -24,6 +26,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.rayson.eldoretonlinemarket.models.AccessToken;
+import com.rayson.eldoretonlinemarket.models.ApiClient;
+import com.rayson.eldoretonlinemarket.models.STKPush;
 import com.rayson.eldoretonlinemarket.resources.CartDetails;
 import com.rayson.eldoretonlinemarket.resources.OrderIds;
 import com.rayson.eldoretonlinemarket.resources.Orders;
@@ -35,6 +40,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.rayson.eldoretonlinemarket.ui.payment.Services.Utils;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -47,7 +53,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import timber.log.Timber;
+
 import static com.rayson.eldoretonlinemarket.ViewCartActivity.encode;
+import static com.rayson.eldoretonlinemarket.ui.payment.Interceptor.Constants.BUSINESS_SHORT_CODE;
+import static com.rayson.eldoretonlinemarket.ui.payment.Interceptor.Constants.CALLBACKURL;
+import static com.rayson.eldoretonlinemarket.ui.payment.Interceptor.Constants.PARTYB;
+import static com.rayson.eldoretonlinemarket.ui.payment.Interceptor.Constants.PASSKEY;
+import static com.rayson.eldoretonlinemarket.ui.payment.Interceptor.Constants.TRANSACTION_TYPE;
 
 
 public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemTouchHelperAdapter ,
@@ -64,7 +80,6 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     List<String> coordsLong = new ArrayList<>();
     private static final int PRODUCT_TYPE = 1;
     private static final int HEADER_TYPE = 2;
-
     //vars
     private ArrayList<CartDetails> mProducts = new ArrayList<>();
     private Context mContext;
@@ -74,6 +89,11 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     TextView tvTotal;
     private int n;
     private int amnt;
+    private int postn;
+    private ApiClient mApiClient;
+    //    private ProgressDialog mProgressDialog;
+    TextView mAmount;
+    EditText mPhone;
 
 
     public CartRecyclerViewAdapter(Context context, ArrayList<CartDetails> products,TextView tvTotal) {
@@ -122,20 +142,20 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             format.setMaximumFractionDigits(0);
             format.setCurrency(Currency.getInstance("KSH"));
             ((ViewHolder)holder).price.setText(format.format(sPrice ));
+            ((ViewHolder)holder).amount.setText("Amount:  "+mProducts.get(position).getAmount());
+            ((ViewHolder)holder).btnCheckOut.setOnClickListener(view -> {
+                showDialog(position);
+            });
+            ((ViewHolder)holder).parentView.setOnTouchListener((v, event) -> {
 
-            ((ViewHolder)holder).parentView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
+                ((ViewCartActivity)mContext).setIsScrolling(false);
 
-                    ((ViewCartActivity)mContext).setIsScrolling(false);
-
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        mSelectedHolder = ((ViewHolder)holder);
-                        mGestureDetector.onTouchEvent(event);
-                    }
-
-                    return true;
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mSelectedHolder = ((ViewHolder)holder);
+                    mGestureDetector.onTouchEvent(event);
                 }
+
+                return true;
             });
         }
         else{
@@ -167,13 +187,13 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public void onItemSwiped(int position) {
-        removeItemFromCart(mProducts.get(position));
+        removeFullItemFromCart(mProducts.get(position));
 
         mProducts.remove(mProducts.get(position));
         notifyItemRemoved(position);
     }
 
-    private void removeItemFromCart(CartDetails cartDetails) {
+    private void removeFullItemFromCart(CartDetails cartDetails) {
         db.collection(mUser.getEmail()).document("all_cart_products").collection("Cart").document(cartDetails.getName())
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -210,7 +230,7 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         mTouchHelper = touchHelper;
     }
 
-    private void showDialog() {
+    private void showDialog(int position) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
         alertDialog.setTitle("Place order");
         alertDialog.setMessage("Fill all the details.");
@@ -219,33 +239,75 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         View add_order_layout = inflater.inflate(R.layout.place_order_layout,null);
 
         tvAmount = add_order_layout.findViewById(R.id.tvOrderAmount);
-        tvAmount.setText("Total amount: " + getTotalCartAmount());
+        Locale locale = new Locale("en","KE");
+        NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
+        tvAmount.setText("Total amount: " + fmt.format(getTotalCartAmount()));
         spLocations = add_order_layout.findViewById(R.id.spLocations);
         alertDialog.setView(add_order_layout);
         alertDialog.setIcon(R.drawable.ic_baseline_shopping_cart_24);
         populateSpinner();
-        alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        spLocations.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(DialogInterface dialog, int i) {
-                dialog.dismiss();
-                String location =spLocations.getSelectedItem().toString();
-                if (!location.isEmpty()){
-                    String lat=coordsLat.get(i);
-                    String longtd=coordsLong.get(i);
-                    addOrderInOrderId(lat,longtd);
-                }
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                postn = i;
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
         });
-
-        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                dialog.dismiss();
-                mLocations.clear();
+        alertDialog.setPositiveButton("YES", (dialog, i) -> {
+            dialog.dismiss();
+            String location =spLocations.getSelectedItem().toString();
+            if (!location.isEmpty()){
+                String lat=coordsLat.get(postn);
+                String longtd=coordsLong.get(postn);
+                showPaymentDialog(lat,longtd,getTotalCartAmount(),position);
             }
+
+
         });
+
+        alertDialog.setNegativeButton("NO", (dialog, i) -> dialog.dismiss());
+        alertDialog.show();
+
+    }
+    private void showPaymentDialog(String lat,String longtd,int amount,int position) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+        alertDialog.setTitle("Place order");
+        alertDialog.setMessage("Fill all the details.");
+
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View add_order_layout = inflater.inflate(R.layout.fragment_mpesa_payment,null);
+
+        mAmount = add_order_layout.findViewById(R.id.etAmount);
+        Locale locale = new Locale("en","KE");
+        NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
+        mAmount.setText("Amount: " + fmt.format(getTotalCartAmount()));
+        mPhone=add_order_layout.findViewById(R.id.etPhone);
+//        mPay=add_order_layout.findViewById(R.id.btnPay);
+//        mProgressDialog = new ProgressDialog(mContext);
+        mApiClient = new ApiClient();
+        mApiClient.setIsDebug(true);
+        getAccessToken();
+        alertDialog.setView(add_order_layout);
+        alertDialog.setIcon(R.drawable.ic_baseline_shopping_cart_24);
+        alertDialog.setPositiveButton("YES", (dialog, i) -> {
+            String phoneNo=mPhone.getText().toString().trim();
+            if (!phoneNo.isEmpty()){
+                performSTKPush(phoneNo,amount,lat,longtd,position);
+                dialog.dismiss();
+
+            }
+            else{
+                Toast.makeText(mContext,"Phone number cannot be empty",Toast.LENGTH_SHORT).show();
+            }
+
+
+        });
+
+        alertDialog.setNegativeButton("NO", (dialog, i) -> dialog.dismiss());
         alertDialog.show();
 
     }
@@ -263,6 +325,8 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                             for (position=0;position<size;position++){
                                 UserDestinationInfo uDetails= mLocations.get(position);
                                 cats.add(uDetails.getDestinationNickName());
+                                coordsLat.add(uDetails.getLatitude());
+                                coordsLong.add(uDetails.getLongitude());
                             }
                             ArrayAdapter<String> usersAdapter = new ArrayAdapter<>(
                                     mContext, android.R.layout.simple_spinner_item, cats);
@@ -281,41 +345,35 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                     }
                 });
     }
-    private void addOrderInOrderId(String latitude,String longitude) {
+    private void addOrderInOrderId(String latitude,String longitude,int position) {
         Date c = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy",Locale.US);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy h:mm a", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm a", Locale.US);
         String formattedDate = df.format(c);
         String formattedDateAndTime = sdf.format(c);
         String[] dts= formattedDateAndTime.split(" ");
-        String fdddd = dts[0];
+        String ttttt = dts[0];
         final int min=10;
         final int max = 1000000;
         final int random = new Random().nextInt((max-min) + 1) + min;
         final String randomOrder=mUser.getEmail() + random;
-        OrderIds orderIds=new OrderIds("Orders of "+ encode(formattedDate),mUser.getEmail(),formattedDateAndTime,latitude,longitude,fdddd,getTotalCartAmount(),0);
-        db.collection("AllOrders").document(encode(fdddd)).collection("allOrderIds").document(randomOrder)
+        OrderIds orderIds=new OrderIds(randomOrder,mUser.getEmail(),formattedDateAndTime,latitude,longitude,ttttt,mUser.getEmail(),getTotalCartAmount(),0);
+        db.collection("AllOrders").document(encode(ttttt)).collection("allOrderIds").document(randomOrder)
                 .set(orderIds)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
 //                                startActivity(new Intent(getContext(), MainActivityAdmin.class));
                         //   Toast.makeText(ViewCartActivity.this, "Order has been placed.", Toast.LENGTH_SHORT).show();
-                        //getCartProducts(randomOrder);
-                        addOrder(randomOrder);
+                        getCartProducts(randomOrder,position);
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(mContext,"Not ordered. Try again later.",Toast.LENGTH_LONG).show();
-                    }
-                });
+                .addOnFailureListener(e -> Toast.makeText(mContext,"Not ordered. Try again later.",Toast.LENGTH_LONG).show());
     }
-    private void getCartProducts(final String orderId){
+    private void getCartProducts(final String orderId,int position){
         //mProducts.addAll(Arrays.asList(Products.FEATURED_PRODUCTS));
         db.collectionGroup("Cart").whereEqualTo("username",mUser.getEmail())
-                .get()
+              .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -323,7 +381,7 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (DocumentSnapshot snapshot : queryDocumentSnapshots)
                                 mProducts.add(snapshot.toObject(CartDetails.class));
-
+                            addOrder(orderId,position);
                         } else {
                             Toast.makeText(mContext, "No products found in your cart.", Toast.LENGTH_LONG).show();
                             Intent intentMain= new Intent(mContext,MainActivity.class);
@@ -331,15 +389,12 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                         }
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(mContext, "Something went terribly wrong." + e, Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "error "+ e);
-                    }
+                .addOnFailureListener(e -> {
+                    Toast.makeText(mContext, "Something went terribly wrong." + e, Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "error "+ e);
                 });
     }
-    private void addOrder(String orderId){
+    private void addOrder(String orderId,int positon){
         int size = mProducts.size();
         int position;
         for (position=0;position<size;position++){
@@ -347,16 +402,14 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             n = position;
             String product_amount=mProducts.get(position).getAmount();
             int cash = Integer.parseInt(product_amount) * Integer.parseInt(mProducts.get(position).getPrice());
-            Orders orders=new Orders(product_name,product_amount,orderId,mUser.getEmail(),String.valueOf(cash),mProducts.get(position).getImage(),mProducts.get(position).getOwner_name(),0);
-            removeItemFromCart();
+
+            Orders orders=new Orders(product_name,product_amount,orderId,mUser.getEmail(),String.valueOf(cash),mProducts.get(position).getImage(),mProducts.get(position).getUsername(),0);
             db.collection("Orders").document("placed orders").collection(orderId).document(product_name)
                     .set(orders)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
+                    .addOnSuccessListener(aVoid -> {
 //                                startActivity(new Intent(getContext(), MainActivityAdmin.class));
+                        removeItemFromCart(positon);
 
-                        }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -366,32 +419,20 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                     });
         }
     }
-    private void removeItemFromCart() {
+    private void removeItemFromCart(int position) {
         int size = mProducts.size();
-        int position;
-        for (position =size-1; position >=0; position--){
-            n = position;
             db.collection(mUser.getEmail()).document("all_cart_products").collection("Cart").document(mProducts.get(position).getName())
                     .delete()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
+                    .addOnSuccessListener(aVoid -> {
 //                                startActivity(new Intent(getContext(), MainActivityAdmin.class));
-                            if (n==0){
-                                Toast.makeText(mContext, "Order has been placed.", Toast.LENGTH_SHORT).show();
-                                Intent intentMain= new Intent(mContext,MainActivity.class);
-                                mContext.startActivity(intentMain);
-                            }
+                        if (n==0){
+                            Toast.makeText(mContext, "Order has been placed.", Toast.LENGTH_SHORT).show();
+                            Intent intentMain= new Intent(mContext,MainActivity.class);
+                            mContext.startActivity(intentMain);
+                        }
 
-                        }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(mContext,"Not ordered. Try again later.",Toast.LENGTH_LONG).show();
-                        }
-                    });
-        }
+                    .addOnFailureListener(e -> Toast.makeText(mContext,"Not ordered. Try again later.",Toast.LENGTH_LONG).show());
     }
     @Override
     public boolean onDown(MotionEvent motionEvent) {
@@ -429,13 +470,14 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         ImageView image;
         Button btnCheckOut;
-        TextView title, price;
+        TextView title, price,amount;
         RelativeLayout parentView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             title = itemView.findViewById(R.id.title);
+            amount=itemView.findViewById(R.id.amountss);
             price = itemView.findViewById(R.id.price);
             btnCheckOut=itemView.findViewById(R.id.btn_checkout_in_adapter);
             parentView = itemView.findViewById(R.id.parent);
@@ -450,6 +492,70 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             super(itemView);
             sectionTitle = itemView.findViewById(R.id.cart_section_header);
         }
+    }
+    public void getAccessToken() {
+        mApiClient.setGetAccessToken(true);
+        mApiClient.mpesaService().getAccessToken().enqueue(new Callback<AccessToken>() {
+            @Override
+            public void onResponse(@NonNull Call<AccessToken> call, @NonNull Response<AccessToken> response) {
+
+                if (response.isSuccessful()) {
+                    mApiClient.setAuthToken(response.body().accessToken);
+                    Toast.makeText(mContext,"Access token success",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<AccessToken> call, @NonNull Throwable t) {
+
+            }
+        });
+    }
+    public void performSTKPush(String phone_number,int amount,String lat,String longtd,int position) {
+//        mProgressDialog.setMessage("Processing your request");
+//        mProgressDialog.setTitle("Please Wait...");
+//        mProgressDialog.setIndeterminate(true);
+//        mProgressDialog.show();
+        String timestamp = Utils.getTimestamp();
+        STKPush stkPush = new STKPush(
+                BUSINESS_SHORT_CODE,
+                Utils.getPassword(BUSINESS_SHORT_CODE, PASSKEY, timestamp),
+                timestamp,
+                TRANSACTION_TYPE,
+                String.valueOf(1),
+                Utils.sanitizePhoneNumber(phone_number),
+                PARTYB,
+                Utils.sanitizePhoneNumber(phone_number),
+                CALLBACKURL,
+                "MPESA Android Test", //Account reference
+                "Testing"  //Transaction description
+        );
+//        String.valueOf(amount);
+        mApiClient.setGetAccessToken(false);
+
+        //Sending the data to the Mpesa API, remember to remove the logging when in production.
+        mApiClient.mpesaService().sendPush(stkPush).enqueue(new Callback<STKPush>() {
+            @Override
+            public void onResponse(@NonNull Call<STKPush> call, @NonNull Response<STKPush> response) {
+                //mProgressDialog.dismiss();
+                try {
+                    if (response.isSuccessful()) {
+                        Timber.d("post submitted to API. %s", response.body());
+                        addOrderInOrderId(lat,longtd,position);
+                    } else {
+                        Timber.e("Response %s", response.errorBody().string());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<STKPush> call, @NonNull Throwable t) {
+                //mProgressDialog.dismiss();
+                Timber.e(t);
+            }
+        });
     }
 }
 
