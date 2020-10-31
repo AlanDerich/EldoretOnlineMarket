@@ -53,5 +53,6 @@
         PageMaker including versions of Lorem Ipsum</string>
     <string name="menu_maps">Maps</string>
     <string name="title_activity_delivery">MainActivity</string>
+    <string name="fab_sell_desc">SELL</string>
 
 </resources>

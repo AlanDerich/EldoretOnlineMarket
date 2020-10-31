@@ -1,7 +1,6 @@
 <component name="libraryTable">
   <library name="Gradle: cn.pedant.sweetalert:library:1.3@aar">
     <CLASSES>
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/13230874fd67179ab081666af1349acc/jetified-library-1.3/AndroidManifest.xml" />
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/13230874fd67179ab081666af1349acc/jetified-library-1.3/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/13230874fd67179ab081666af1349acc/jetified-library-1.3/res" />
     </CLASSES>

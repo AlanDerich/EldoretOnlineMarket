@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/EldoretOnlineMarket.iml" filepath="$PROJECT_DIR$/.idea/modules/EldoretOnlineMarket.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/EldoretOnlineMarket.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/EldoretOnlineMarket.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/EldoretOnlineMarket.iml" filepath="$PROJECT_DIR$/.idea/modules/EldoretOnlineMarket.iml" group="EldoretOnlineMarket" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="EldoretOnlineMarket/app" />
     </modules>
   </component>
 </project>
