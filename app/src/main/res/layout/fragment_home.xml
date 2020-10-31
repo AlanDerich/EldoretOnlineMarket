@@ -123,18 +123,5 @@
         </LinearLayout>
 
     </RelativeLayout>
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fab_sell"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
-        android:contentDescription="@string/fab_sell_desc"
-        android:text="@string/fab_sell_desc"
-        android:textAllCaps="true"
-        app:icon="@drawable/ic_icon_add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:strokeColor="@color/black"
-        app:strokeWidth="1dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
