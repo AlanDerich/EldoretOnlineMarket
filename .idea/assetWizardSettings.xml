@@ -302,7 +302,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/root/Documents/android-studio/plugins/android/lib/android.jar!/images/material/icons/materialicons/add/baseline_add_24.xml" />
+                                      <entry key="url" value="jar:file:/root/Documents/android-studio/plugins/android/lib/android.jar!/images/material/icons/materialicons/map/baseline_map_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -312,7 +312,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_icon_add" />
+                            <entry key="outputName" value="ic_icon_map" />
                           </map>
                         </option>
                       </PersistentState>

@@ -6,11 +6,11 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_icon_home"
             android:title="@string/menu_home" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_icon_orders"
             android:title="@string/menu_gallery" />
 <!--        <item-->
 <!--            android:id="@+id/nav_slideshow"-->
@@ -18,11 +18,11 @@
 <!--            android:title="@string/menu_slideshow" />-->
         <item
             android:id="@+id/nav_maps_fragment"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/ic_icon_map"
             android:title="@string/menu_maps" />
-        <item
-            android:id="@+id/mpesaPaymentFragment"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Mpesa Pay" />
+<!--        <item-->
+<!--            android:id="@+id/mpesaPaymentFragment"-->
+<!--            android:icon="@drawable/ic_icon_pay"-->
+<!--            android:title="Mpesa Pay" />-->
     </group>
 </menu>
