@@ -121,7 +121,7 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
       tvProductDescription.setText(product_description);
       tvPrice.setText(format.format(Integer.valueOf(product_price)));
         RequestOptions requestOptions = new RequestOptions()
-                .placeholder(R.drawable.ordersn);
+                .placeholder(R.drawable.loader_icon);
         Glide.with(this)
                 .setDefaultRequestOptions(requestOptions)
                 .load(product_image)
@@ -174,25 +174,6 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
                 });
     }
 
-    private void inflateFullScreenProductFragment(){
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        FullScreenProductFragment fragment = new FullScreenProductFragment();
-
-        Bundle bundle = new Bundle();
-        Products1 selectedProduct=new Products1(product_name,product_image,product_description,product_price,product_category,mUser.getEmail());
-        bundle.putParcelable(getString(R.string.intent_product), selectedProduct);
-        fragment.setArguments(bundle);
-
-        // Enter Transition for New Fragment
-        Fade enterFade = new Fade();
-        enterFade.setStartDelay(1);
-        enterFade.setDuration(300);
-        fragment.setEnterTransition(enterFade);
-
-        transaction.addToBackStack(getString(R.string.fragment_full_screen_product));
-        transaction.replace(R.id.full_screen_container, fragment, getString(R.string.fragment_full_screen_product));
-        transaction.commit();
-    }
 
 
     @Override
@@ -320,7 +301,7 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
     @Override
     public boolean onDoubleTap(MotionEvent motionEvent) {
         Log.d(TAG, "onDoubleTap: called.");
-        inflateFullScreenProductFragment();
+//        inflateFullScreenProductFragment();
         return false;
     }
 

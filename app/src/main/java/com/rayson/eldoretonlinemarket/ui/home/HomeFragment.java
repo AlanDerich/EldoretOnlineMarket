@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.rayson.eldoretonlinemarket.ui.categories.CategoryAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,13 +42,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
 
     //vars
     MainRecyclerViewAdapter mAdapter;
+    CategoryAdapter mCatsAdapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     List<Category> mCategory;
     List<Products1> mProducts;
     List<String> cats = new ArrayList<>();
     Context mContext;
     //widgets
-    private RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView,mRecyclerViewCategories;
     private Spinner spCategories;
     private RelativeLayout mCart;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -57,7 +59,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         mRecyclerView = root.findViewById(R.id.recycler_view);
+        mRecyclerViewCategories = root.findViewById(R.id.recycler_categories);
         mRecyclerView.setVisibility(View.INVISIBLE);
+        mRecyclerViewCategories.setVisibility(View.INVISIBLE);
         mCart = root.findViewById(R.id.cart);
         pbLoading = root.findViewById(R.id.progressBarHome);
         mSwipeRefreshLayout = root.findViewById(R.id.swipe_refresh_layout);
@@ -174,6 +178,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setVisibility(View.VISIBLE);
         pbLoading.setVisibility(View.GONE);
+
+        mCatsAdapter = new CategoryAdapter(mCategory);
+        GridLayoutManager layoutManagerCats = new GridLayoutManager(getContext(), 4);
+        mRecyclerViewCategories.setLayoutManager(layoutManagerCats);
+        mRecyclerViewCategories.setAdapter(mCatsAdapter);
+        mRecyclerViewCategories.setVisibility(View.VISIBLE);
     }
 
     @Override

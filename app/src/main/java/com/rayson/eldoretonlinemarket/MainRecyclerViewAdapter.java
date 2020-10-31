@@ -50,7 +50,7 @@ public class MainRecyclerViewAdapter extends RecyclerView.Adapter<MainRecyclerVi
         holder.tvPrice.setText(fmt.format(price));
         holder.tvDescription.setText(mProducts.get(position).getDescription());
         RequestOptions requestOptions = new RequestOptions()
-                .placeholder(R.drawable.ordersn);
+                .placeholder(R.drawable.loader_icon);
         Glide.with(mContext)
                 .setDefaultRequestOptions(requestOptions)
                 .load(mProducts.get(position).getImage())
