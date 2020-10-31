@@ -5,7 +5,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <RelativeLayout
+        android:id="@+id/relative_layout_home"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/Grey">
@@ -17,9 +19,9 @@
             android:orientation="vertical">
 
             <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:id="@+id/toolbar"
                 android:background="@color/colorPrimary"
                 android:elevation="10dp">
 
@@ -28,24 +30,24 @@
                     android:layout_height="match_parent">
 
                     <RelativeLayout
+                        android:id="@+id/cart"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true"
-                        android:padding="10dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
                         android:background="@drawable/blue_onclick_dark"
-                        android:id="@+id/cart">
+                        android:padding="10dp">
 
                         <ImageView
+                            android:id="@+id/cart_image"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:src="@drawable/ic_cart_white"
-                            android:id="@+id/cart_image"
-                            android:visibility="visible"/>
+                            android:visibility="visible" />
 
                     </RelativeLayout>
 
@@ -56,9 +58,10 @@
 
 
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipe_refresh_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/swipe_refresh_layout">
+                android:layout_height="match_parent">
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">

@@ -52,11 +52,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     private RelativeLayout mCart;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private ProgressBar pbLoading;
+    private RelativeLayout relative_layout_home;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         mRecyclerView = root.findViewById(R.id.recycler_view);
+        relative_layout_home = root.findViewById(R.id.relative_layout_home);
         mRecyclerViewCategories = root.findViewById(R.id.recycler_categories);
         mRecyclerView.setVisibility(View.INVISIBLE);
         mRecyclerViewCategories.setVisibility(View.INVISIBLE);
@@ -150,7 +152,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         mRecyclerView.setVisibility(View.VISIBLE);
         pbLoading.setVisibility(View.GONE);
 
-        mCatsAdapter = new CategoryAdapter(mCategory);
+        mCatsAdapter = new CategoryAdapter(mCategory,relative_layout_home);
         GridLayoutManager layoutManagerCats = new GridLayoutManager(getContext(), 3);
         mRecyclerViewCategories.setLayoutManager(layoutManagerCats);
         mRecyclerViewCategories.setAdapter(mCatsAdapter);
