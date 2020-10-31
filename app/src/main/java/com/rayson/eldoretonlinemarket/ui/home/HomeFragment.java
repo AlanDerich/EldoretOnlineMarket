@@ -46,11 +46,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     List<Category> mCategory;
     List<Products1> mProducts;
-    List<String> cats = new ArrayList<>();
     Context mContext;
     //widgets
     private RecyclerView mRecyclerView,mRecyclerViewCategories;
-    private Spinner spCategories;
     private RelativeLayout mCart;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private ProgressBar pbLoading;
@@ -65,27 +63,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         mCart = root.findViewById(R.id.cart);
         pbLoading = root.findViewById(R.id.progressBarHome);
         mSwipeRefreshLayout = root.findViewById(R.id.swipe_refresh_layout);
-        spCategories=root.findViewById(R.id.spinnerCategories);
         mContext= getActivity();
         mSwipeRefreshLayout.setOnRefreshListener(this);
         populateSpinner();
-        spCategories.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String catName=spCategories.getSelectedItem().toString().trim();
-                if (catName.equals("All Products")){
-                    getProducts();
-                }
-                else {
-                    getProducts(catName);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
+        getProducts();
         mCart.setOnClickListener(this);
         return root;
     }
@@ -99,16 +80,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (DocumentSnapshot snapshot : queryDocumentSnapshots)
                                 mCategory.add(snapshot.toObject(Category.class));
-                            int size = mCategory.size();
-                            int position;
-                            cats.add("All Products");
-                            for (position=0;position<size;position++){
-                                Category uDetails= mCategory.get(position);
-                                cats.add(uDetails.getName());
-                            }
-                            ArrayAdapter<String> usersAdapter = new ArrayAdapter<>(
-                                    getContext(), android.R.layout.simple_spinner_item, cats);
-                            spCategories.setAdapter(usersAdapter);
                         } else {
                             Toast.makeText(mContext, "No products found. Please contact admin to add a new product", Toast.LENGTH_LONG).show();
                         }
@@ -180,7 +151,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         pbLoading.setVisibility(View.GONE);
 
         mCatsAdapter = new CategoryAdapter(mCategory);
-        GridLayoutManager layoutManagerCats = new GridLayoutManager(getContext(), 4);
+        GridLayoutManager layoutManagerCats = new GridLayoutManager(getContext(), 3);
         mRecyclerViewCategories.setLayoutManager(layoutManagerCats);
         mRecyclerViewCategories.setAdapter(mCatsAdapter);
         mRecyclerViewCategories.setVisibility(View.VISIBLE);
