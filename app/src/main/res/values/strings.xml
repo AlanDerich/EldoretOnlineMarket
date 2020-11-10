@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">EldoretOnlineMarket</string>
+    <string name="app_name">E-Market</string>
 
     <!-- fragment tags -->
     <string name="fragment_image">Image Fragment</string>
