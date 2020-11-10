@@ -69,23 +69,20 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 //                .load(bmp)
 //                .into(holder.imgCategory);
         holder.tvName.setText(mItemInfo.get(position).getName());
-        holder.mainLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        holder.mainLayout.setOnClickListener(view -> {
 
-                if (rootLayout_items_fragment!=null){
-                    rootLayout_items_fragment.removeAllViews();
-                }
-                Bundle args = new Bundle();
-                AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                Fragment fragmentStaff = new AllItems();
-                FragmentTransaction transactionStaff = activity.getSupportFragmentManager().beginTransaction();
-                transactionStaff.replace(R.id.nav_host_fragment,fragmentStaff);
-                transactionStaff.addToBackStack(null);
-                args.putString("category",mItemInfo.get(position).getName());
-                fragmentStaff.setArguments(args);
-                transactionStaff.commit();
+            if (rootLayout_items_fragment!=null){
+                rootLayout_items_fragment.removeAllViews();
             }
+            Bundle args = new Bundle();
+            AppCompatActivity activity = (AppCompatActivity) view.getContext();
+            Fragment fragmentStaff = new AllItems();
+            FragmentTransaction transactionStaff = activity.getSupportFragmentManager().beginTransaction();
+            transactionStaff.replace(R.id.nav_host_fragment,fragmentStaff);
+            transactionStaff.addToBackStack(null);
+            args.putString("category",mItemInfo.get(position).getName());
+            fragmentStaff.setArguments(args);
+            transactionStaff.commit();
         });
     }
 

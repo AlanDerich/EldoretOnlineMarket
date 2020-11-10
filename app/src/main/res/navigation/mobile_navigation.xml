@@ -10,25 +10,8 @@
         android:name="com.rayson.eldoretonlinemarket.ui.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
-
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.rayson.eldoretonlinemarket.ui.orders.OrdersFragment"
-        android:label="Orders"
-        tools:layout="@layout/fragment_view_orders" />
-
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.rayson.eldoretonlinemarket.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
-    <fragment
-        android:id="@+id/nav_maps_fragment"
-        android:name="com.rayson.eldoretonlinemarket.ui.MapsFragment"
-        android:label="fragment_maps"
-        tools:layout="@layout/fragment_maps" />
-    <fragment
-        android:id="@+id/mpesaPaymentFragment"
-        android:name="com.rayson.eldoretonlinemarket.ui.payment.MpesaPaymentFragment"
-        android:label="MpesaPaymentFragment" />
+        android:id="@+id/nav_allItems"
+        android:name="com.rayson.eldoretonlinemarket.ui.categoriesitems.AllItems"
+        android:label="AllItems" />
 </navigation>

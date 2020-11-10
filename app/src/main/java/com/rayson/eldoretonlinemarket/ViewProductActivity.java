@@ -43,13 +43,12 @@ import java.util.Currency;
  */
 
 public class ViewProductActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener,
-        GestureDetector.OnDoubleTapListener,View.OnClickListener, View.OnDragListener {
+        GestureDetector.OnDoubleTapListener, View.OnDragListener {
     private static final String TAG = "ViewProductActivity";
 
     //widgets
     private FirebaseUser mUser= FirebaseAuth.getInstance().getCurrentUser();
-    private RelativeLayout mAddToCart, mCart;
-    private ImageView mCartIcon, mPlusIcon,productImage;
+    private ImageView productImage;
     private ImageButton btnAdd,btnRemove;
     private TextView tvPrice,selectedItems,tvName,tvProductDescription;
     //vars
@@ -62,7 +61,6 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_product);
-        mAddToCart = findViewById(R.id.add_to_cart);
         productImage=findViewById(R.id.imageViewViewImageImage);
         btnAdd=findViewById(R.id.imageButtonAddItem);
         btnRemove=findViewById(R.id.imageButtonSubtractItem);
@@ -70,14 +68,9 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
         tvName=findViewById(R.id.tv_view_product_name);
         tvProductDescription=findViewById(R.id.product_description);
         selectedItems=findViewById(R.id.textViewCurrentProductsSelected);
-        mCart = findViewById(R.id.cart);
-        mPlusIcon = findViewById(R.id.plus_image);
-        mCartIcon = findViewById(R.id.cart_image);
 
         productImage.setOnTouchListener(this);
         mGestureDetector = new GestureDetector(this, this);
-        mCart.setOnClickListener(this);
-        mAddToCart.setOnClickListener(this);
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,7 +124,6 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
 
     private void getCartPosition(){
         mCartPositionRectangle = new Rect();
-        mCart.getGlobalVisibleRect(mCartPositionRectangle);
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -146,12 +138,8 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
 
     private void setDragMode(boolean isDragging){
         if(isDragging){
-            mCartIcon.setVisibility(View.INVISIBLE);
-            mPlusIcon.setVisibility(View.VISIBLE);
         }
         else{
-            mCartIcon.setVisibility(View.VISIBLE);
-            mPlusIcon.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -173,26 +161,6 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
                     }
                 });
     }
-
-
-
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()){
-            case R.id.cart:{
-                //open Cart Activity
-                Intent intent = new Intent(this, ViewCartActivity.class);
-                startActivity(intent);
-                break;
-            }
-
-            case R.id.add_to_cart:{
-                addCurrentItemToCart();
-                break;
-            }
-        }
-    }
-
 
     /*
         OnTouch
@@ -332,15 +300,7 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
 
             case DragEvent.ACTION_DRAG_LOCATION:
 
-                Point currentPoint = new Point(Math.round(event.getX()), Math.round(event.getY()));
-//                Log.d(TAG, "onDrag: x: " + currentPoint.x + ", y: " + currentPoint.y );
 
-                if(mCartPositionRectangle.contains(currentPoint.x, currentPoint.y)){
-                    mCart.setBackgroundColor(this.getResources().getColor(R.color.blue2));
-                }
-                else{
-                    mCart.setBackgroundColor(this.getResources().getColor(R.color.blue1));
-                }
 
                 return true;
 
@@ -356,14 +316,6 @@ public class ViewProductActivity extends AppCompatActivity implements View.OnTou
 
             case DragEvent.ACTION_DRAG_ENDED:
                 Log.d(TAG, "onDrag: ended.");
-
-                Drawable background = mCart.getBackground();
-                if (background instanceof ColorDrawable) {
-                    if (((ColorDrawable) background).getColor() == getResources().getColor(R.color.blue2)) {
-                        addCurrentItemToCart();
-                    }
-                }
-                mCart.setBackground(this.getResources().getDrawable(R.drawable.blue_onclick_dark));
                 setDragMode(false);
                 return true;
 

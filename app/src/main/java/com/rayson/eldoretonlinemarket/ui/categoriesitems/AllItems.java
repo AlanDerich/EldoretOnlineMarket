@@ -100,7 +100,7 @@ public class AllItems extends Fragment implements AllItemsAdapter.OnItemsClickLi
         rvCategories.setLayoutManager(linearLayoutManager);
     }
     private void getCategoryList(){
-        db.collectionGroup("AllItems").whereEqualTo("menuId",isIherited).whereEqualTo("username",mUser.getEmail()).get()
+        db.collectionGroup("AllItems").whereEqualTo("menuId",isIherited).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class HomeFragment extends Fragment implements View.OnClickListener,
+public class HomeFragment extends Fragment implements
         SwipeRefreshLayout.OnRefreshListener{
 
     private static final int NUM_COLUMNS = 2;
@@ -49,7 +49,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
     Context mContext;
     //widgets
     private RecyclerView mRecyclerView,mRecyclerViewCategories;
-    private RelativeLayout mCart;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private ProgressBar pbLoading;
     private RelativeLayout relative_layout_home;
@@ -62,14 +61,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         mRecyclerViewCategories = root.findViewById(R.id.recycler_categories);
         mRecyclerView.setVisibility(View.INVISIBLE);
         mRecyclerViewCategories.setVisibility(View.INVISIBLE);
-        mCart = root.findViewById(R.id.cart);
         pbLoading = root.findViewById(R.id.progressBarHome);
         mSwipeRefreshLayout = root.findViewById(R.id.swipe_refresh_layout);
         mContext= getActivity();
         mSwipeRefreshLayout.setOnRefreshListener(this);
         populateSpinner();
         getProducts();
-        mCart.setOnClickListener(this);
         return root;
     }
 
@@ -82,9 +79,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
                         if (!queryDocumentSnapshots.isEmpty()) {
                             for (DocumentSnapshot snapshot : queryDocumentSnapshots)
                                 mCategory.add(snapshot.toObject(Category.class));
+                            initCategoryRecyclerview();
                         } else {
                             Toast.makeText(mContext, "No products found. Please contact admin to add a new product", Toast.LENGTH_LONG).show();
                         }
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -151,24 +150,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener,
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setVisibility(View.VISIBLE);
         pbLoading.setVisibility(View.GONE);
-
+    }
+    private void initCategoryRecyclerview(){
         mCatsAdapter = new CategoryAdapter(mCategory,relative_layout_home);
         GridLayoutManager layoutManagerCats = new GridLayoutManager(getContext(), 3);
         mRecyclerViewCategories.setLayoutManager(layoutManagerCats);
         mRecyclerViewCategories.setAdapter(mCatsAdapter);
         mRecyclerViewCategories.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()){
-            case R.id.cart:{
-                //open Cart Activity
-                Intent intent = new Intent(view.getContext(), ViewCartActivity.class);
-                startActivity(intent);
-                break;
-            }
-        }
     }
 
     @Override
